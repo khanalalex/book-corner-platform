@@ -29,7 +29,8 @@
     <!-- Modules are added phase by phase. Do not add a module before it exists. -->
     <modules>
         <module>infrastructure/discovery-server</module>
-        <!-- next: config-server, api-gateway (1b, 1c), then services/auth-service -->
+        <module>infrastructure/config-server</module>
+        <!-- next: api-gateway (1c), then services/auth-service -->
     </modules>
 
     <dependencyManagement>

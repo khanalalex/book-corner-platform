@@ -1,0 +1,25 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-server
+  profiles:
+    active: native          # read config from a folder (local dev). Production will use a Git repository.
+  cloud:
+    config:
+      server:
+        native:
+          # Working directory is this module when run with Maven, so ../../config-repo is the repo-root folder.
+          search-locations: file:${CONFIG_REPO_PATH:../../config-repo}
+  security:
+    user:
+      # DEV defaults only. Real environments set these as environment variables.
+      name: ${CONFIG_SERVER_USER:config}
+      password: ${CONFIG_SERVER_PASSWORD:config-dev-pw}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
