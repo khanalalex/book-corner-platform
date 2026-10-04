@@ -26,14 +26,11 @@
         <spring-cloud.version>2025.1.3</spring-cloud.version>
     </properties>
 
-    <!-- Modules are added phase by phase. Do not add a module before it exists.
+    <!-- Modules are added phase by phase. Do not add a module before it exists. -->
     <modules>
         <module>infrastructure/discovery-server</module>
-        <module>infrastructure/config-server</module>
-        <module>infrastructure/api-gateway</module>
-        <module>services/auth-service</module>
+        <!-- next: config-server, api-gateway (1b, 1c), then services/auth-service -->
     </modules>
-    -->
 
     <dependencyManagement>
         <dependencies>
