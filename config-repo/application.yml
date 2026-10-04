@@ -1,0 +1,13 @@
+# Shared defaults served to EVERY service (a service's own file, e.g. auth-service.yml, overrides these).
+# RULE: no secrets in this folder. Passwords and keys come from environment variables.
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
