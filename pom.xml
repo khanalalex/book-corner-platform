@@ -30,7 +30,8 @@
     <modules>
         <module>infrastructure/discovery-server</module>
         <module>infrastructure/config-server</module>
-        <!-- next: api-gateway (1c), then services/auth-service -->
+        <module>infrastructure/api-gateway</module>
+        <!-- next: services/auth-service (1d/1e) -->
     </modules>
 
     <dependencyManagement>

@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  config:
+    # "optional:" = start even if the config server is down (convenient locally; remove it in production
+    # so a missing config server makes the gateway fail fast).
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+  cloud:
+    config:
+      username: ${CONFIG_SERVER_USER:config}
+      password: ${CONFIG_SERVER_PASSWORD:config-dev-pw}
+    gateway:
+      server:
+        webflux:
+          # Explicit routes only. We deliberately do NOT enable automatic "discovery locator" routes,
+          # because that would expose every registered service publicly.
+          routes:
+            - id: auth-service
+              uri: lb://auth-service          # lb:// = look the service up in Eureka and load-balance
+              predicates:
+                - Path=/api/v1/auth/**,/api/v1/users/**
+            # Added phase by phase:
+            # catalog-service (Phase 2), order-service (Phase 4), rental-service (Phase 6), ...
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
