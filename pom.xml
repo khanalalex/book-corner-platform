@@ -31,7 +31,7 @@
         <module>infrastructure/discovery-server</module>
         <module>infrastructure/config-server</module>
         <module>infrastructure/api-gateway</module>
-        <!-- next: services/auth-service (1d/1e) -->
+        <module>services/auth-service</module>
     </modules>
 
     <dependencyManagement>
