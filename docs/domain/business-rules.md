@@ -54,6 +54,11 @@ Items marked **TBD** are decisions still open.
 - BR-27 Only users who bought or rented a book can review it.
 - BR-28 Two review types per purchase: a **satisfaction review** (experience with the seller/transaction) and a **book review** (the book itself). A user may leave both.
 
+## Accounts
+- BR-29 Users log in with email and password. Accounts are active immediately after registration.
+- BR-30 A user must have a **verified email** before placing an order, listing a book, or renting. Browsing and
+  logging in do not require it. *(Rule enforced once the verification flow exists, Phase 7.)*
+
 ## Open questions
 - Membership plan prices and allowances for 3/6/12 months (TBD)
 - Discount percentage on new books for members (TBD)

@@ -1,0 +1,33 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+  config:
+    # "optional:" = start even if the config server is down (local convenience; remove in production)
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+  cloud:
+    config:
+      username: ${CONFIG_SERVER_USER:config}
+      password: ${CONFIG_SERVER_PASSWORD:config-dev-pw}
+  datasource:
+    # DEV defaults match docker-compose + infrastructure/mysql/init. Real environments set the env variables.
+    # allowPublicKeyRetrieval is needed for MySQL 8.4 password login without TLS: local development only.
+    url: ${AUTH_DB_URL:jdbc:mysql://localhost:3307/auth_db?allowPublicKeyRetrieval=true&useSSL=false}
+    username: ${AUTH_DB_USER:auth_svc}
+    password: ${AUTH_DB_PASSWORD:auth_dev_pw}
+  jpa:
+    open-in-view: false          # no database access while rendering the response (avoids hidden lazy loading)
+    hibernate:
+      ddl-auto: validate         # Flyway owns the schema; Hibernate only CHECKS it matches the entities
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

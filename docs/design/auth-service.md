@@ -1,4 +1,6 @@
-# Design: auth-service (Phase 1d, for review before coding)
+# Design: auth-service
+
+Status: **Approved** (2026-10-05). Login by email only; access token 15 min; refresh token 14 days.
 
 ## 1. Responsibility
 Owns **identity and access**: accounts, credentials, roles, and issuing tokens.
@@ -17,7 +19,7 @@ A user can hold several roles (e.g. USER + SELLER).
 | Item | Decision | Why |
 |---|---|---|
 | Access token | JWT, **RS256** (asymmetric), **15 min** | Services verify with the public key only; no shared secret to leak |
-| Claims | `sub` (user UUID), `roles`, `iss`, `aud`, `jti`, `iat`, `exp`; header `kid` | Minimal: no email, no personal data |
+| Claims | `sub` (user UUID), `roles`, `email_verified`, `iss`, `aud`, `jti`, `iat`, `exp`; header `kid` | Minimal: no email, no personal data |
 | Refresh token | random 256-bit opaque string, **14 days**, stored **hashed** (SHA-256) | A database leak does not leak usable tokens |
 | Rotation | every refresh issues a new refresh token and revokes the old one | Limits the value of a stolen token |
 | Reuse detection | presenting an already-used refresh token revokes the whole token family | Detects theft |
@@ -27,7 +29,7 @@ Trade-off: roles inside a token can be up to 15 minutes stale after a change. Ac
 
 ## 4. Data model (`auth_db`, Flyway migrations)
 **users**: id (UUID, BINARY(16)), email (unique, stored lowercase), password_hash, full_name, phone (optional),
-status (ACTIVE / DISABLED), failed_login_attempts, locked_until, created_at, updated_at, version (optimistic lock).
+status (ACTIVE / DISABLED), email_verified_at (NULL = not verified), failed_login_attempts, locked_until, created_at, updated_at, version (optimistic lock).
 **roles**: id, name (USER, SELLER, ADMIN, RIDER).
 **user_roles**: user_id, role_id (composite key).
 **refresh_tokens**: id, user_id, family_id, token_hash (unique), issued_at, expires_at, revoked_at, replaced_by,
@@ -64,6 +66,20 @@ Errors use the standard Problem Details format (RFC 9457). Validation errors lis
   key pair at startup (tokens stop working after restart); other profiles refuse to start without a configured key.
 - Clock skew tolerance of 30 seconds when validating expiry.
 
+## 6b. Decision: email verification
+**Accounts are ACTIVE immediately. Verification is required before the user does anything that involves money or
+physical books** (placing an order, listing a book, renting).
+- Why not block login until verified: it adds friction exactly when a new user is deciding whether to stay.
+- Why not skip verification entirely: this is a marketplace with deliveries, payouts and disputes. A fake or mistyped
+  email means no receipts, no password recovery, and no way to contact a buyer or seller.
+- How: the token carries `email_verified`; order, catalog (selling) and rental services reject unverified users.
+  The auth-service stores `email_verified_at`.
+- When: the verification flow (email with a link, resend, expiry) is built when notification-service exists
+  (Phase 7). Until then no one can become verified, so the gating rule is switched on in those services only
+  once the flow exists.
+- Side benefit: with verification in place, registration can later respond with a generic message and stop
+  revealing whether an email already exists.
+
 ## 7. Bootstrap admin
 On first start, if no ADMIN exists, create one from `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD`
 environment variables. Without them, no admin is created.
@@ -84,7 +100,7 @@ Exact starter names for Boot 4 are verified when coding (several were renamed in
 8. OpenAPI docs and test pass
 
 ## 10. Out of scope for now
-Email verification, forgot-password, Google login, social login, MFA, rate limiting. Each is a later addition and
+Email verification flow (the decision is in 6b; the flow comes with notification-service), forgot-password, Google login (postponed), social login, MFA, rate limiting. Each is a later addition and
 the design above does not block any of them.
 
 ## 11. Alternatives considered
