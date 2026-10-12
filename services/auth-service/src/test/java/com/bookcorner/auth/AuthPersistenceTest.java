@@ -18,23 +18,14 @@ import com.bookcorner.auth.user.UserStatus;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Runs the real Flyway migrations against a real MySQL started by Testcontainers (Docker must be running),
- * then lets Hibernate validate that the entities match the schema. Each test rolls back its data.
+ * Runs the real Flyway migrations against a real MySQL, then lets Hibernate validate that the entities match
+ * the schema. Each test rolls back its data.
  */
-@SpringBootTest(properties = {
-        // "tc" = Testcontainers JDBC URL: starts a throwaway MySQL 8.4 container for the test run
-        "spring.datasource.url=jdbc:tc:mysql:8.4:///auth_test",
-        "spring.datasource.driver-class-name=org.testcontainers.jdbc.ContainerDatabaseDriver",
-        "spring.datasource.username=test",
-        "spring.datasource.password=test",
-        "eureka.client.enabled=false",
-        "spring.cloud.config.enabled=false"
-})
+@IntegrationTest
 @Transactional
 class AuthPersistenceTest {
 
